@@ -11,10 +11,18 @@ class Position:
         self.row = row
         self.column = column
 
-
+class Trash:
+    def __init__(self, position):
+      self.position = position
+    
 class Robo:
     value = 1
     inTrashPosition = False
+    position = Position(0,0)
+    contentInPlace = " "
+    #contectInNeighborhood = 
+    trashPlace = Position(19,19)
+    holdingItem = " "
 
     def __init__(self, name, position):
         self.name = name
@@ -23,12 +31,57 @@ class Robo:
     def agent_simples():
         print("agente simples")
 
-    def move(self, position):
-        self.position = position
+    def checkPosition(self, position, content):
+      print(position)
+      if(position==self.trashPlace):
+        self.dropGarbage()
+      if(content != "-"):
+        self.pickGarbage(content)
+       
 
-    def checkPosition(self, position):
-        if(position==Position(19,19)):
-            self.inTrashPosition = True
+    #Movimento Robo
+    def moveRight(self, position):
+      if(position.colunm < 20):
+        self.position = position.column+1
+      else:
+        print("fora do limite direita")
+
+    def moveLeft(self, position):
+      if(position.colunm >= 0):
+        self.position = position.colunm -1
+      else:
+        print("fora do limite esquerda")
+
+    def moveUp(self, position):
+      if(position.row >= 0):
+        self.position = position.row-1
+      else:
+        print("fora do limite cima")
+
+    def moveDown(self, position):
+      if(position.row < 20):
+        self.position = position.row +1
+      else:
+        print("fora do limite baixo")
+
+    #Pegar Teles
+    def pickGarbage(self, garbage):
+      #se mao estiver vazia
+      if(self.holdingItem == "-"):
+        self.holdingItem = garbage
+        print("cata lixo")
+      else:
+        print("mao cheia")
+      
+    def dropGarbage(self, position):
+      if(self.holdingItem != "-" and Robo.position == self.trashPlace):
+        self.inTrashPosition = True
+        self.holdingItem = "-"
+        Trash.removeGarbage(self.garbage)
+        print("jogando lixo na lixeira")
+      else:
+        print("nao sujar o chão")
+        
 
 
 class Mapa:
@@ -49,28 +102,25 @@ class Mapa:
             print(term)
 
     def moveRobot(self, position, robo):
+      if(self.isAValidPosition(position)):
         self.removeRobot(robo)
         self.addRobot(position, robo)
+        garbage = self.matrix[position.row][position.column]
         robo.move(position)
-        robo.checkPosition(position)
+        robo.checkPosition(position, garbage)
         if(robo.inTrashPosition):
           print("Chegou no lixo")
+      else:
+        print("posição invalida")
 
-    def simpleMoveRobot(self, robo):
-      #começando do [0][0]  
+    def isAValidPosition(self, position):
+      if(position.row < 0 or position.row > self.row):
+        return False
+      elif(position.column < 0 or position.column > self.column):
+        return False
+      return True
+
         
-        while(robo.position.row < self.row-1):
-            self.moveRobot(Position(robo.position.row+1,robo.position.column), robo)
-
-        self.moveRobot(Position(robo.position.row, robo.position.column+1), robo)
-        if(robo.inTrashPosition == True):
-            return "chegou"
-
-        while(robo.position.row > 0 ):
-            self.moveRobot(Position(robo.position.row-1,robo.position.column), robo)
-        
-        self.moveRobot(Position(robo.position.row, robo.position.column+1), robo)
-
     def addRobot(self, position, robo):
         self.matrix[position.row][position.column] = robo.value
 
