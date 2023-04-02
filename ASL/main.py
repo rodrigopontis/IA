@@ -1,5 +1,5 @@
 import os
-
+import random
 
 def return_zero():
     print('Starting function return_zero()...')
@@ -16,7 +16,7 @@ class Trash:
       self.position = position
     
 class Robo:
-    value = 1
+    value = "R"
     inTrashPosition = False
     position = Position(0,0)
     contentInPlace = " "
@@ -90,7 +90,7 @@ class Mapa:
     def __init__(self, position):
         self.row = position.row
         self.column = position.column
-        self.matrix = [[0 for x in range(self.row)]
+        self.matrix = [["-" for x in range(self.row)]
                        for y in range(self.column)]
 
     def positionValue(self, position):
@@ -125,36 +125,52 @@ class Mapa:
         self.matrix[position.row][position.column] = robo.value
 
     def removeRobot(self, robo):
-        self.matrix[robo.position.row][robo.position.column] = 0
+        if(self.matrix[robo.position.row][robo.position.column] == "G" and self.matrix[robo.position.row][robo.position.column] == "L"):
+            print("Lixo coletado")
+        else: 
+            self.matrix[robo.position.row][robo.position.column] = "x"
 
-    def addTrash(self, value):
-        self.matrix[19][19] = value
+    def addTrash(self, position):
+        self.matrix[position.row][position.column] = "T"
 
-    def addBin(self, value):
-        self.matrix[0][0] = value
+    def addGarbage(self, position):
+        self.matrix[position.row][position.column] = "G"
 
+    def addRecyclable(self, position):
+        self.matrix[position.row][position.column] = "L"
+        
+    def positionItems(self):
+        random.seed(0)
+        for i in range(10):
+            self.addGarbage(Position(random.randint(0, 19), random.randint(0, 19)))
 
+        for i in range(5):
+            self.addRecyclable(Position(random.randint(0, 19), random.randint(0, 19)))
+            
 class Mundo:
+    recyclable = 5
+    garbage = 10
+
     def __init__(self):
         self.agente = Robo("robo", Position(0, 0))
         self.mapa = Mapa(Position(20, 20))
         self.mapa.addRobot(Position(0, 0), self.agente)
-        self.mapa.addTrash(3)
+        self.mapa.addTrash(Position(19, 19))
+        self.mapa.positionItems()
 
     def robotSimpleMovement(self):
-      while(self.mapa.simpleMoveRobot(self.agente) != 'chegou'):
-        self.mapa.simpleMoveRobot(self.agente)
         self.mapa.printMapa()
 
-        
+        while(self.recyclable + self.garbage > 0):
+            self.mapa.simpleMoveRobot(self.agente)
         #for i in range(100000):
           #self.mapa.addBin(0)
+
+    
     def start(self):
         self.robotSimpleMovement()
 
-        ############################################### RODANDO O PROJETO ################################################
-
-
+##################################################### RODANDO O PROJETO ################################################
 mundo = Mundo()
 
 mundo.start()
