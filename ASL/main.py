@@ -123,7 +123,6 @@ class Mapa:
         for i in range(5):
             self.addRecyclable(Position(random.randint(0, 19), random.randint(0, 19)))
             
-
 class Mundo:
     recyclable = 5
     garbage = 10
@@ -147,9 +146,7 @@ class Mundo:
     def start(self):
         self.robotSimpleMovement()
 
-        ############################################### RODANDO O PROJETO ################################################
-
-
+##################################################### RODANDO O PROJETO ################################################
 mundo = Mundo()
 
 mundo.start()
