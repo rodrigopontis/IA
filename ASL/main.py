@@ -1,4 +1,4 @@
-from classes import Mundo
+from mundo import Mundo
 ##################################################### RODANDO O PROJETO ################################################
 mundo = Mundo()
 
