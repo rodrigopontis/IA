@@ -62,9 +62,11 @@ class Mapa:
             if item != "-":
                 robo.pickGarbage(item)
                 robo.stop()
+
             self.setRobotPerceptions(robo)
         else:
             print("movimento invalido")
+            robo.undoMove(self.robotPosition)
 
     def collectGarbage(self, robo, position):
         robo.collecting()
@@ -80,17 +82,30 @@ class Mapa:
                 self.moveRobot(down, robo)
 
     def moveRobotToBin(self, robo):
-        robo.move()
-        while(self.robotPosition.row < 19):
-            down = robo.moveDown()
-            self.moveRobot(down, robo)
+        if(robo.holdingItem != "-"):
+            robo.move()
+            if(robo.direction == "down" or robo.direction == "right"):  
+                if(self.robotPosition.column == 19): 
+                    while(self.robotPosition.row < 18):
+                        down = robo.moveDown()
+                        self.moveRobot(down, robo)
+                else:
+                    while(self.robotPosition.row < 19):
+                        down = robo.moveDown()
+                        self.moveRobot(down, robo)
 
-        while(self.robotPosition.column < 18):
-            right = robo.moveRight()
-            self.moveRobot(right, robo)
+                if(self.robotPosition.row == 19): 
+                    while(self.robotPosition.column < 18):
+                        right = robo.moveRight()
+                        self.moveRobot(right, robo)
+                else:
+                    while(self.robotPosition.column < 19):
+                        right = robo.moveRight()
+                        self.moveRobot(right, robo)
+                    
 
-        robo.dropGarbage()
-        robo.stop()
+            robo.dropGarbage()
+            robo.stop()
 
     def isAValidPosition(self, row, column):
         if row < 0 or row >= self.row:
@@ -126,7 +141,6 @@ class Mapa:
         self.itemToCollect = direction
         if(robo.isCollecting != True):
             robo.stop()
-
 
     def positionItems(self):
         random.seed(0)

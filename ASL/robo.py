@@ -38,7 +38,6 @@ class Robo:
             return position
 
     # Movimento Robo
-
     def moveRight(self):
         if self.position.column < 20 and self.canMove == True:
             newPosition = Position(self.position.row, self.position.column + 1)
@@ -78,6 +77,9 @@ class Robo:
             return newPosition
         else:
             return self.position
+
+    def undoMove(self, position):
+        self.position = position   
 
     def stop(self):
         self.canMove = False
