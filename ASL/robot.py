@@ -57,6 +57,7 @@ class Robot:
         if(self.holdingItem):
             print("mão cheia")
         else:
+            print("pegar item", self.contentInPlace)
             item = self.contentInPlace
             
             self.holdingItem = item
@@ -287,7 +288,6 @@ class AgentBasedInModel(Robot):
     def moveToItem(self, item):
         row = item.position.row - self.position.row
         column = item.position.column - self.position.column
-        print(row, column)
 
         while self.holdingItem == None:
             # North or up
@@ -384,3 +384,27 @@ class AgentBasedInModel(Robot):
                     self.itemsToCollect = list(set(self.itemsToCollect))
 
                     self.stop()
+
+class AgentBasedInObjective(AgentBasedInModel):
+    def __init__(self,name, position, direction):
+        super().__init__(name, position, direction)
+
+    def searchObjective(self):
+        self.itemsToCollect = self.map.getItems()
+
+    def move(self): 
+        self.searchObjective()
+
+        if(self.holdingItem == None):
+            self.collectFromObjective()
+    
+    def collectFromObjective(self):
+        self.moveToItem(self.itemsToCollect[0])
+
+        if(self.holdingItem != None):
+            self.moveToBin()
+            if(self.inBinPosition()):
+                print("dropar item", self.holdingItem)
+                self.dropItem() 
+
+        self.stop()

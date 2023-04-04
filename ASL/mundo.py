@@ -1,5 +1,5 @@
 from map import Position, Map
-from robot import SimpleAgent, AgentBasedInModel
+from robot import SimpleAgent, AgentBasedInModel, AgentBasedInObjective
 from time import time
 
 class Bin:
@@ -22,7 +22,7 @@ class Mundo:
     bin = Bin(Position(19, 19))
 
     def __init__(self):
-        self.agent = AgentBasedInModel("garibo", Position(0, 0), "right")
+        self.agent = AgentBasedInObjective("garibo", Position(0, 0), "right")
         self.map = Map(20, 20, self.agent)
         self.agent.addMap(self.map)
         self.agent.setBin(self.bin)
@@ -44,6 +44,7 @@ class Mundo:
     def moveAgent(self):
         self.agent.isStopped = False
         while len(self.bin.collectedItems) < 15:
+        # while self.agent.isStopped != True:
             self.agent.move()
 
     def start(self):
