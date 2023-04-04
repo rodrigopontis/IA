@@ -48,7 +48,6 @@ class Robot:
         if(direction == "up"):
             self.moveRight()
 
-
     def moveUp(self):
         newPosition = Position(self.position.row - 1, self.position.column)
 

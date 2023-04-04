@@ -17,12 +17,11 @@ class Mundo:
         self.map = Map(20, 20, self.agent)
         self.agent.addMap(self.map)
         # self.mapa.addTrash(Position(19, 19))
-        # self.mapa.positionItems()
+        self.map.positionItems()
 
     def robotSimpleMovement(self):
         self.map.printMap()
-
-        self.moveAgent()
+        # self.moveAgent()
 
     def moveAgent(self):
         self.agent.isStopped = False
