@@ -36,8 +36,43 @@ class Map:
         self.bin = bin
 
     def positionItems(self):
-        g1 = CollectableObject(Position(1, 19))
+        #Organic 10
+        g1 = CollectableObject(Position(1, 6))
         self.garbageItems.append(g1)
+        g2 = CollectableObject(Position(2, 18))
+        self.garbageItems.append(g2)
+        g3 = CollectableObject(Position(3, 7))
+        self.garbageItems.append(g3)
+        g4 = CollectableObject(Position(6, 15))
+        self.garbageItems.append(g4)
+        g5 = CollectableObject(Position(7, 2))
+        self.garbageItems.append(g5)
+        g6 = CollectableObject(Position(9, 9))
+        self.garbageItems.append(g6)
+        g7 = CollectableObject(Position(13, 2))
+        self.garbageItems.append(g7)
+        g8 = CollectableObject(Position(14, 9))
+        self.garbageItems.append(g8)
+        g9 = CollectableObject(Position(16, 12))
+        self.garbageItems.append(g9)
+        g10 = CollectableObject(Position(18, 15))
+        self.garbageItems.append(g10)
+        #Recyclable
+        g11 = CollectableObject(Position(1, 2))
+        g11.recyclable()
+        self.garbageItems.append(g11)
+        g12 = CollectableObject(Position(5, 18))
+        g12.recyclable()
+        self.garbageItems.append(g12)
+        g13 = CollectableObject(Position(12, 7))
+        g13.recyclable()
+        self.garbageItems.append(g13)
+        g14 = CollectableObject(Position(8, 9))
+        g14.recyclable()
+        self.garbageItems.append(g14)
+        g15 = CollectableObject(Position(19, 13))
+        g15.recyclable() 
+        self.garbageItems.append(g15)
 
     def stringContent(self, position):
         return self.matrix[position.row][position.column]
