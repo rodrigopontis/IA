@@ -1,16 +1,18 @@
 from map import Position, Map
-from robot import Robot
-
+from robot import SimpleAgent, AgentBasedInModel
+from time import time
 
 class Bin:
     value = "B"
     collectedItems = []
+    itemsToCollect = []
 
     def __init__(self, position):
         self.position = position
 
     def collectItem(self, item):
-        self.collectedItems.append(item)
+        if item:
+            self.collectedItems.append(item)
 
 
 class Mundo:
@@ -20,7 +22,7 @@ class Mundo:
     bin = Bin(Position(19, 19))
 
     def __init__(self):
-        self.agent = Robot("garibo", Position(0, 0), "right")
+        self.agent = AgentBasedInModel("garibo", Position(0, 0), "right")
         self.map = Map(20, 20, self.agent)
         self.agent.addMap(self.map)
         self.agent.setBin(self.bin)
@@ -28,15 +30,23 @@ class Mundo:
         self.map.positionItems()
 
     def robotSimpleMovement(self):
+        cronStart = time()
+
         self.map.printMap()
         self.moveAgent()
         print(self.bin.collectedItems)
+        print(self.agent.itemsToCollect)
+
+        cronEnd = time()
+
+        return (cronEnd - cronStart)
 
     def moveAgent(self):
         self.agent.isStopped = False
-        while len(self.map.garbageItems) > 0 :
+        while len(self.bin.collectedItems) < 15:
             self.agent.move()
-            self.map.printMap()
 
     def start(self):
-        self.robotSimpleMovement()
+        tempo = self.robotSimpleMovement()
+
+        print(f'\nTempo de execução: {tempo:,.2f}')

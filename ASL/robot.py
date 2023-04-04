@@ -19,26 +19,6 @@ class Robot:
     def setBin(self, bin):
         self.bin = bin
 
-    def move(self):
-        self.isStopped = False
-
-        self.lookAround()
-
-        if(len(self.contentInNeighborhood) == 0):
-            if self.direction == "up":
-                self.moveUp()
-            elif self.direction == "down":
-                self.moveDown()
-            elif self.direction == "left":
-                self.moveLeft()
-            elif self.direction == "right":
-                self.moveRight()
-            else:
-                print("Invalid position")
-                self.stop()
-        else:
-            self.collect()
-        
     def crash(self, direction):
         if direction == "right":
             if self.position.row == 19 and self.position.column == 18:
@@ -65,21 +45,27 @@ class Robot:
                 self.moveRight()
     
     def collect(self):
-        self.pickItem()
-        self.moveToBin()
-
-        self.dropItem()
+        target = self.contentInNeighborhood[0]
+        self.moveToDirection(self.positionToDirection(target))
+        
+        if(self.holdingItem):
+            self.moveToBin()
 
         self.stop()
 
     def pickItem(self):
-        target = self.contentInNeighborhood[0]
-        self.moveToDirection(self.positionToDirection(target))
-        self.contentInNeighborhood = []
+        if(self.holdingItem):
+            print("mão cheia")
+        else:
+            item = self.contentInPlace
+            
+            self.holdingItem = item
+            self.map.collectItem(item)
 
     def dropItem(self):
         self.bin.collectItem(self.holdingItem)
         self.holdingItem = None
+        self.contentInNeighborhood = []
 
     def moveUp(self):
         newPosition = Position(self.position.row - 1, self.position.column)
@@ -91,8 +77,9 @@ class Robot:
             contentInPlace = self.map.content(self.position)
             self.contentInPlace = contentInPlace
             if(contentInPlace != None):
-                self.map.collectItem(contentInPlace)
+                self.pickItem()
 
+            self.map.printMap()
             return newPosition
         else:
             self.crash("up")
@@ -107,8 +94,9 @@ class Robot:
             contentInPlace = self.map.content(self.position)
             self.contentInPlace = contentInPlace
             if(contentInPlace != None):
-                self.map.collectItem(contentInPlace)
+                self.pickItem()
 
+            self.map.printMap()
             return newPosition
         else:
             self.crash("down")
@@ -123,8 +111,9 @@ class Robot:
             contentInPlace = self.map.content(self.position)
             self.contentInPlace = contentInPlace
             if(contentInPlace != None):
-                self.map.collectItem(contentInPlace)
+                self.pickItem()
 
+            self.map.printMap()
             return newPosition
         else:
             print("bateu")
@@ -140,8 +129,9 @@ class Robot:
             contentInPlace = self.map.content(self.position)
             self.contentInPlace = contentInPlace
             if(contentInPlace != None):
-                self.map.collectItem(contentInPlace)
+                self.pickItem()
 
+            self.map.printMap()
             return newPosition
         else:
             print("bateu")
@@ -177,7 +167,7 @@ class Robot:
             self.moveRight()
         
     def moveToBin(self):
-        if(self.position.column < 18):
+        if(self.position.column < 19):
             while(self.position.row < 19):
                 self.moveDown()
 
@@ -186,6 +176,9 @@ class Robot:
         elif self.position.column == 19:
             while(self.position.row < 18):
                 self.moveDown()
+        
+        if(self.inBinPosition()):
+            self.dropItem()
 
     def inBinPosition(self):
         if(self.position.column == 18 and self.position.row == 19):
@@ -195,16 +188,6 @@ class Robot:
                 return True
             
         return False
-
-    def lookAround(self):
-        directions = self.getDirections()
-
-        for value in directions.values():
-            if(self.map.isAValidPosition(value)):
-                content = self.map.content(value)
-                if(content != None and self.holdingItem == None):
-                    self.contentInNeighborhood.append(content)
-                    self.stop()
 
     def positionToDirection(self, item):
         directions = self.getDirections()
@@ -228,3 +211,176 @@ class Robot:
     def stop(self):
         self.position = self.position
         self.isStopped = True
+
+class SimpleAgent(Robot): 
+    def __init__(self,name, position, direction):
+        super().__init__(name, position, direction)
+
+    
+    def move(self):
+        self.isStopped = False
+
+        self.lookAround()
+
+        if(len(self.contentInNeighborhood) == 0):
+            if self.direction == "up":
+                self.moveUp()
+            elif self.direction == "down":
+                self.moveDown()
+            elif self.direction == "left":
+                self.moveLeft()
+            elif self.direction == "right":
+                self.moveRight()
+            else:
+                print("Invalid position")
+                self.stop()
+        else:
+            self.collect()
+        
+    
+    def lookAround(self):
+        directions = self.getDirections()
+
+        for value in directions.values():
+            if(self.map.isAValidPosition(value)):
+                content = self.map.content(value)
+                if(content != None and self.holdingItem == None):
+                    self.contentInNeighborhood.append(content)
+                    self.stop()
+
+class AgentBasedInModel(Robot):
+    itemsToCollect = []
+
+    def __init__(self,name, position, direction):
+        super().__init__(name, position, direction)
+    
+    def move(self):
+        self.isStopped = False
+
+        self.lookAround()
+
+        if len(self.itemsToCollect) == 0:
+            if self.direction == "up":
+                self.moveUp()
+            elif self.direction == "down":
+                self.moveDown()
+            elif self.direction == "left":
+                self.moveLeft()
+            elif self.direction == "right":
+                self.moveRight()
+            else:
+                print("Invalid position")
+                self.stop()
+        else:
+            self.collectFromModel()
+    
+    def collectFromModel(self):
+        self.moveToItem(self.itemsToCollect[0])
+
+        if(self.holdingItem):
+            self.moveToBin()
+            if(self.inBinPosition()):
+                self.dropItem()
+
+        self.stop()
+
+    def moveToItem(self, item):
+        row = item.position.row - self.position.row
+        column = item.position.column - self.position.column
+        print(row, column)
+
+        while self.holdingItem == None:
+            # North or up
+            if(row < 0 and column == 0):
+                for i in range(row * -1):
+                    self.moveUp()
+
+            # West or left
+            if(row == 0 and column < 0):
+                for i in range(column * -1):
+                    self.moveLeft()
+            # East or right
+            if(row == 0 and column > 0):
+                for i in range(column):
+                    self.moveRight()
+
+            # South or down
+            if(row > 0 and column == 0):
+                for i in range(row):
+                    self.moveDown()
+
+            # SE
+            if row > 0 and column > 0:
+                for i in range (column):
+                    print(i)
+                    self.moveRight()
+                
+                for i in range(row):
+                    print(i)
+                    self.moveDown()
+        
+            # NW
+            if(row < 0 and column < 0):
+                for i in range(column * -1):
+                    self.moveLeft()
+                
+                for i in range(row * -1):
+                    self.moveUp() 
+
+            # Sw
+            if(row > 0 and column < 0):
+                for i in range(column * -1):
+                    self.moveLeft()
+                
+                for i in range(row):
+                    self.moveDown()
+
+            # SE
+            if(row < 0 and column > 0):
+                for i in range(column):
+                    self.moveRight()
+
+                for i in range(row * -1):
+                    self.moveUp()
+
+        self.stop()
+
+    def moveToBin(self):
+        if(self.position.column < 19):
+            while(self.position.row < 19):
+                self.lookAround()
+                self.moveDown()
+
+            while(self.position.column < 18):
+                self.lookAround()
+                self.moveRight()
+        elif self.position.column == 19:
+            while(self.position.row < 18):
+                self.lookAround()
+                self.moveDown()
+        
+        if(self.inBinPosition()):
+            self.dropItem()
+    
+    def dropItem(self):
+        for i in self.itemsToCollect:
+            if i == self.holdingItem:
+                self.itemsToCollect.remove(i)
+
+        self.bin.collectItem(self.holdingItem)
+
+        self.holdingItem = None
+        self.contentInNeighborhood = []
+
+    def lookAround(self):
+        directions = self.getDirections()
+
+        for value in directions.values():
+            if(self.map.isAValidPosition(value)):
+                content = self.map.content(value)
+                if(content != None):
+                    self.contentInNeighborhood.append(content)
+                    self.itemsToCollect.append(content)
+                    self.itemsToCollect = list(set(self.itemsToCollect))
+
+                    self.stop()

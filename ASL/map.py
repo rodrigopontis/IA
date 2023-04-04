@@ -15,6 +15,15 @@ class CollectableObject:
 
     def __init__(self, position):
         self.position = position
+    
+    def __eq__(self, comp):
+        if comp != None:
+            return self.position == comp.position
+
+        return None
+
+    def __hash__(self):
+        return hash((self.value, self.position))
 
     def getPosition(self):
         return self.position
@@ -57,7 +66,8 @@ class Map:
         self.garbageItems.append(g9)
         g10 = CollectableObject(Position(18, 15))
         self.garbageItems.append(g10)
-        #Recyclable
+
+        #Recyclable 5
         g11 = CollectableObject(Position(1, 2))
         g11.recyclable()
         self.garbageItems.append(g11)
@@ -74,6 +84,9 @@ class Map:
         g15.recyclable() 
         self.garbageItems.append(g15)
         
+    def getItems(self):
+        return self.garbageItems
+
     def stringContent(self, position):
         return self.matrix[position.row][position.column]
 
@@ -107,6 +120,8 @@ class Map:
         if position.row < 0 or position.row >= self.row:
             return False
         if position.column < 0 or position.column >= self.column:
+            return False
+        if position.toArray() == self.bin.position.toArray():
             return False
 
         return True
