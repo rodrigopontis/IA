@@ -41,12 +41,12 @@ class Robot:
         
     def crash(self, direction):
         if direction == "right":
-            if self.position.row > 19:
+            if self.position.row == 19 and self.position.column == 18:
                 self.moveUp()
             else:
                 self.moveDown()
+                self.moveLeft()
 
-            self.moveLeft()
 
         if direction == "left":
             if self.position.row != 19:
@@ -67,14 +67,14 @@ class Robot:
     def collect(self):
         self.pickItem()
         self.moveToBin()
-        if(self.inBinPosition()):
-            self.dropItem()
+
+        self.dropItem()
+
         self.stop()
 
     def pickItem(self):
         target = self.contentInNeighborhood[0]
         self.moveToDirection(self.positionToDirection(target))
-        self.holdingItem = target
         self.contentInNeighborhood = []
 
     def dropItem(self):
@@ -133,7 +133,7 @@ class Robot:
     def moveRight(self):
         newPosition = Position(self.position.row, self.position.column + 1)
 
-        if self.map.isAValidPosition(newPosition):
+        if self.map.isAValidPosition(newPosition) and newPosition.column < 19:
             self.direction = "right"
             self.position = newPosition
 
@@ -150,9 +150,30 @@ class Robot:
     def moveToDirection(self, direction):
         if direction == "north":
             self.moveUp()
+
+        elif direction == "south":
+            self.moveDown()
+
+        elif direction == "east":
+            self.moveRight()
+
+        elif direction == "west":
+            self.moveLeft()
         
         elif direction == "southeast":
             self.moveDown()
+            self.moveRight()
+        
+        elif direction == "southwest":
+            self.moveDown()
+            self.moveLeft()
+        
+        elif direction == "northwest":
+            self.moveUp()
+            self.moveLeft()
+        
+        elif direction == "northeast":
+            self.moveUp()
             self.moveRight()
         
     def moveToBin(self):
@@ -181,7 +202,7 @@ class Robot:
         for value in directions.values():
             if(self.map.isAValidPosition(value)):
                 content = self.map.content(value)
-                if(content != None):
+                if(content != None and self.holdingItem == None):
                     self.contentInNeighborhood.append(content)
                     self.stop()
 

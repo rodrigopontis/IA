@@ -30,10 +30,11 @@ class Mundo:
     def robotSimpleMovement(self):
         self.map.printMap()
         self.moveAgent()
+        print(self.bin.collectedItems)
 
     def moveAgent(self):
         self.agent.isStopped = False
-        while len(self.bin.collectedItems) < 15:
+        while len(self.map.garbageItems) > 0 :
             self.agent.move()
             self.map.printMap()
 

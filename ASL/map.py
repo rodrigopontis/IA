@@ -73,7 +73,7 @@ class Map:
         g15 = CollectableObject(Position(19, 13))
         g15.recyclable() 
         self.garbageItems.append(g15)
-
+        
     def stringContent(self, position):
         return self.matrix[position.row][position.column]
 
@@ -100,6 +100,7 @@ class Map:
     def collectItem(self, item):
         for garbage in self.garbageItems:
             if item == garbage:
+                self.robot.holdingItem = garbage
                 self.garbageItems.remove(garbage)
 
     def isAValidPosition(self, position):
