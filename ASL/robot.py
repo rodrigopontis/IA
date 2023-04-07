@@ -181,6 +181,66 @@ class Robot:
         if(self.inBinPosition()):
             self.dropItem()
 
+    def moveToItem(self, item):
+        row = item.position.row - self.position.row
+        column = item.position.column - self.position.column
+
+        while self.holdingItem != item:
+            # North or up
+            if(row < 0 and column == 0):
+                for i in range(row * -1):
+                    self.moveUp()
+
+            # West or left
+            if(row == 0 and column < 0):
+                for i in range(column * -1):
+                    self.moveLeft()
+            # East or right
+            if(row == 0 and column > 0):
+                for i in range(column):
+                    self.moveRight()
+
+            # South or down
+            if(row > 0 and column == 0):
+                for i in range(row):
+                    self.moveDown()
+
+            # SE
+            if row > 0 and column > 0:
+                for i in range (column):
+                    print(i)
+                    self.moveRight()
+                
+                for i in range(row):
+                    print(i)
+                    self.moveDown()
+        
+            # NW
+            if(row < 0 and column < 0):
+                for i in range(column * -1):
+                    self.moveLeft()
+                
+                for i in range(row * -1):
+                    self.moveUp() 
+
+            # Sw
+            if(row > 0 and column < 0):
+                for i in range(column * -1):
+                    self.moveLeft()
+                
+                for i in range(row):
+                    self.moveDown()
+
+            # SE
+            if(row < 0 and column > 0):
+                for i in range(column):
+                    self.moveRight()
+
+                for i in range(row * -1):
+                    self.moveUp()
+
+        self.stop()
+
     def inBinPosition(self):
         if(self.position.column == 18 and self.position.row == 19):
             return True
@@ -285,66 +345,6 @@ class AgentBasedInModel(Robot):
 
         self.stop()
 
-    def moveToItem(self, item):
-        row = item.position.row - self.position.row
-        column = item.position.column - self.position.column
-
-        while self.holdingItem == None:
-            # North or up
-            if(row < 0 and column == 0):
-                for i in range(row * -1):
-                    self.moveUp()
-
-            # West or left
-            if(row == 0 and column < 0):
-                for i in range(column * -1):
-                    self.moveLeft()
-            # East or right
-            if(row == 0 and column > 0):
-                for i in range(column):
-                    self.moveRight()
-
-            # South or down
-            if(row > 0 and column == 0):
-                for i in range(row):
-                    self.moveDown()
-
-            # SE
-            if row > 0 and column > 0:
-                for i in range (column):
-                    print(i)
-                    self.moveRight()
-                
-                for i in range(row):
-                    print(i)
-                    self.moveDown()
-        
-            # NW
-            if(row < 0 and column < 0):
-                for i in range(column * -1):
-                    self.moveLeft()
-                
-                for i in range(row * -1):
-                    self.moveUp() 
-
-            # Sw
-            if(row > 0 and column < 0):
-                for i in range(column * -1):
-                    self.moveLeft()
-                
-                for i in range(row):
-                    self.moveDown()
-
-            # SE
-            if(row < 0 and column > 0):
-                for i in range(column):
-                    self.moveRight()
-
-                for i in range(row * -1):
-                    self.moveUp()
-
-        self.stop()
-
     def moveToBin(self):
         if(self.position.column < 19):
             while(self.position.row < 19):
@@ -385,9 +385,10 @@ class AgentBasedInModel(Robot):
 
                     self.stop()
 
-class AgentBasedInObjective(AgentBasedInModel):
+class AgentBasedInObjective(Robot):
     def __init__(self,name, position, direction):
         super().__init__(name, position, direction)
+        self.itemsToCollect = []
 
     def searchObjective(self):
         self.itemsToCollect = self.map.getItems()
@@ -403,8 +404,40 @@ class AgentBasedInObjective(AgentBasedInModel):
 
         if(self.holdingItem != None):
             self.moveToBin()
-            if(self.inBinPosition()):
-                print("dropar item", self.holdingItem)
-                self.dropItem() 
 
         self.stop()
+
+class AgentBasedInRewards(Robot):
+    def __init__(self,name, position, direction):
+        super().__init__(name, position, direction)
+        self.itemsToCollect = []
+
+    def addMap(self, map):
+        self.map = map
+
+    def searchObjective(self):
+        totalItems = self.map.getItems()
+
+        for item in totalItems:
+            if item.value == "V":
+                self.itemsToCollect.append(item)
+
+        for item in totalItems:
+            if item.value == "G":
+                self.itemsToCollect.append(item)
+    
+    def move(self): 
+        if(self.holdingItem == None):
+            self.collectFromReward()
+
+    def collectFromReward(self):
+        print("moving to", self.itemsToCollect[0])
+        self.moveToItem(self.itemsToCollect[0])
+
+        if(self.holdingItem != None):
+            self.moveToBin()
+
+        self.stop()
+
+
+

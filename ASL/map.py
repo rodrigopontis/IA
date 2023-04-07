@@ -37,7 +37,6 @@ class CollectableObject:
     def recyclable(self):
         self.value = "V"
 
-
 class Map:
     matrix = []
     garbageItems = []
@@ -145,3 +144,10 @@ class Map:
             return False
 
         return True
+
+    def printItems(self):
+        aux = []
+        for item in self.garbageItems:
+            aux.append(item.position.toArray())
+
+        print(aux) 
