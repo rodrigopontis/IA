@@ -36,4 +36,12 @@ Tem felicidade
 - exemplo items que valem mais pontos, etc...
 
 
+## Resultado dos Experimentos
+- Robo 1: 10.11s
+- Robo 2: 3.92s
+- Robo 3: 2.51s
+- Robo 4: 2.01s
+
+
+
 

@@ -67,6 +67,29 @@ class Mundo:
 
     def modelBasedAgent(self):
         print("agente baseado em modelo")
+        self.setup()
+
+        cronStart = time()
+
+        agent = AgentBasedInModel("garibo", Position(0, 0), "right")
+        self.map.setAgent(agent)
+
+        agent.addMap(self.map)
+        agent.setBin(self.bin)
+
+        self.map.printMap()
+
+        agent.isStopped = False
+        while len(self.bin.collectedItems) < 15:
+            agent.move()
+        
+        self.map.printItems()
+        self.bin.printItems()
+
+        cronEnd = time()
+
+        agent = None
+        return (cronEnd - cronStart)
 
     # em media 10 segundos
     def objectiveBasedAgent(self):
@@ -96,6 +119,32 @@ class Mundo:
 
     def rewardBasedAgent(self):
         print("agente baseado em recompensa")
+        self.setup()
+
+        cronStart = time()
+
+        agent = AgentBasedInRewards("garibo", Position(0, 0), "right")
+        self.map.setAgent(agent)
+
+        agent.addMap(self.map)
+        agent.setBin(self.bin)
+
+        self.map.printMap()
+
+        agent.isStopped = False
+        agent.searchObjective()
+        while len(self.bin.collectedItems) < 15:
+            agent.move()
+        
+        self.map.printItems()
+        self.bin.printItems()
+
+        cronEnd = time()
+
+        agent = None
+        return (cronEnd - cronStart)
+
+        
 
     def start(self):
 
@@ -106,17 +155,17 @@ class Mundo:
 
             if(menu == 1):
                 tempo = self.simpleAgent()
-                print(f'\nTempo de execução: {tempo:,.2f}')
+                print(f'\nTempo de execução: {tempo:,.2f}\n')
             elif(menu == 2):
                 tempo = self.modelBasedAgent()
-                # print(f'\nTempo de execução: {tempo:,.2f}')
+                print(f'\nTempo de execução: {tempo:,.2f}\n')
             elif(menu == 3):
                 tempo = self.objectiveBasedAgent()
 
                 print(f'\nTempo de execução: {tempo:,.2f}\n')
             elif(menu == 4):
                 tempo = self.rewardBasedAgent()
-                # print(f'\nTempo de execução: {tempo:,.2f}')
+                print(f'\nTempo de execução: {tempo:,.2f}\n')
             else:
                 print("Selecione uma opção válida ou digite 0 para sair...\n")
 
