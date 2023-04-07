@@ -41,13 +41,15 @@ class Map:
     matrix = []
     garbageItems = []
 
-    def __init__(self, row, column, robot):
+    def __init__(self, row, column):
         self.row = row
         self.column = column
-        self.robot = robot
 
     def setBin(self, bin):
         self.bin = bin
+
+    def setAgent(self, robot):
+        self.robot = robot
 
     def positionItems(self):
         #Organic 10
@@ -129,10 +131,8 @@ class Map:
             print(term)
 
     def collectItem(self, item):
-        print("removendo", item, "do array")
         for garbage in self.garbageItems:
             if item == garbage:
-                print("item encontrado")
                 self.garbageItems.remove(garbage)
 
     def isAValidPosition(self, position):

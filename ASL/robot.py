@@ -57,7 +57,6 @@ class Robot:
         if(self.holdingItem):
             print("mão cheia")
         else:
-            print("pegar item", self.contentInPlace)
             item = self.contentInPlace
             
             self.holdingItem = item
@@ -185,7 +184,7 @@ class Robot:
         row = item.position.row - self.position.row
         column = item.position.column - self.position.column
 
-        while self.holdingItem != item:
+        while self.holdingItem == None:
             # North or up
             if(row < 0 and column == 0):
                 for i in range(row * -1):
@@ -208,11 +207,9 @@ class Robot:
             # SE
             if row > 0 and column > 0:
                 for i in range (column):
-                    print(i)
                     self.moveRight()
                 
                 for i in range(row):
-                    print(i)
                     self.moveDown()
         
             # NW
@@ -298,7 +295,6 @@ class SimpleAgent(Robot):
         else:
             self.collect()
         
-    
     def lookAround(self):
         directions = self.getDirections()
 
@@ -407,7 +403,10 @@ class AgentBasedInObjective(Robot):
 
         self.stop()
 
-class AgentBasedInRewards(Robot):
+class AgentBasedInRewards(AgentBasedInModel):
+    priorityItems = []
+    targetItem = None
+
     def __init__(self,name, position, direction):
         super().__init__(name, position, direction)
         self.itemsToCollect = []
@@ -420,10 +419,8 @@ class AgentBasedInRewards(Robot):
 
         for item in totalItems:
             if item.value == "V":
-                self.itemsToCollect.append(item)
-
-        for item in totalItems:
-            if item.value == "G":
+                self.priorityItems.append(item)
+            else:
                 self.itemsToCollect.append(item)
     
     def move(self): 
@@ -431,13 +428,102 @@ class AgentBasedInRewards(Robot):
             self.collectFromReward()
 
     def collectFromReward(self):
-        print("moving to", self.itemsToCollect[0])
-        self.moveToItem(self.itemsToCollect[0])
+        if(len(self.priorityItems) > 0):
+            self.targetItem = self.priorityItems[0]
+            self.moveToItem(self.priorityItems[0])
+        else:
+            self.targetItem = self.itemsToCollect[0]
+            self.moveToItem(self.itemsToCollect[0])
 
         if(self.holdingItem != None):
             self.moveToBin()
 
         self.stop()
 
+    def dropItem(self):
 
+        if self.holdingItem.value == "G":
+            for i in self.itemsToCollect:
+                if i == self.holdingItem:
+                    self.itemsToCollect.remove(i)
+        else:
+            for i in self.priorityItems:
+                if i == self.holdingItem:
+                    self.priorityItems.remove(i)
+
+        self.bin.collectItem(self.holdingItem)
+
+        self.targetItem = None
+        self.holdingItem = None
+        self.contentInNeighborhood = []
+
+    def moveUp(self):
+        newPosition = Position(self.position.row - 1, self.position.column)
+
+        if self.map.isAValidPosition(newPosition):
+            self.direction = "up"
+            self.position = newPosition
+
+            contentInPlace = self.map.content(self.position)
+            self.contentInPlace = contentInPlace
+            if(contentInPlace == self.targetItem):
+                self.pickItem()
+
+            self.map.printMap()
+            return newPosition
+        else:
+            self.crash("up")
+
+    def moveDown(self):
+        newPosition = Position(self.position.row + 1, self.position.column)
+
+        if self.map.isAValidPosition(newPosition):
+            self.direction = "down"
+            self.position = newPosition
+
+            contentInPlace = self.map.content(self.position)
+            self.contentInPlace = contentInPlace
+            if(contentInPlace == self.targetItem):
+                self.pickItem()
+
+            self.map.printMap()
+            return newPosition
+        else:
+            self.crash("down")
+
+    def moveLeft(self):
+        newPosition = Position(self.position.row, self.position.column - 1)
+
+        if self.map.isAValidPosition(newPosition):
+            self.direction = "left"
+            self.position = newPosition
+
+            contentInPlace = self.map.content(self.position)
+            self.contentInPlace = contentInPlace
+            if(contentInPlace == self.targetItem):
+                self.pickItem()
+
+            self.map.printMap()
+            return newPosition
+        else:
+            print("bateu")
+            self.crash("left")
+
+    def moveRight(self):
+        newPosition = Position(self.position.row, self.position.column + 1)
+
+        if self.map.isAValidPosition(newPosition) and newPosition.column < 19:
+            self.direction = "right"
+            self.position = newPosition
+
+            contentInPlace = self.map.content(self.position)
+            self.contentInPlace = contentInPlace
+            if(contentInPlace == self.targetItem):
+                self.pickItem()
+
+            self.map.printMap()
+            return newPosition
+        else:
+            print("bateu")
+            self.crash("right")
 
